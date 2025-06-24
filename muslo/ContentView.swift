@@ -1,6 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import AVFoundation
+import UIKit
 
 struct ContentView: View {
     @State private var tracks: [Track] = []
@@ -12,7 +13,24 @@ struct ContentView: View {
             List {
                 ForEach(tracks) { track in
                     HStack {
-                        Text(track.name)
+                        if let artwork = track.artwork {
+                            Image(uiImage: artwork)
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .cornerRadius(4)
+                        } else {
+                            Image(systemName: "music.note")
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .foregroundColor(.secondary)
+                        }
+                        VStack(alignment: .leading) {
+                            Text(track.title)
+                                .font(.headline)
+                            Text(track.artist)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
                         Spacer()
                         Button(action: {
                             player.play(url: track.url)
