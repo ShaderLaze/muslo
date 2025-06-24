@@ -19,12 +19,10 @@ struct PlayerView: View {
                             .scaledToFill()
                             .frame(width: geo.size.width, height: geo.size.width)
                             .clipped()
-                            .ignoresSafeArea(.container, edges: .top)
                     } else {
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: geo.size.width, height: geo.size.width)
-                            .ignoresSafeArea(.container, edges: .top)
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         Text(track.title)
@@ -74,6 +72,7 @@ struct PlayerView: View {
                     }
                     .padding(.vertical)
                 }
+                .ignoresSafeArea(.container, edges: .top)
             }
         }
         .onAppear {
