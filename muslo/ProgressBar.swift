@@ -15,6 +15,7 @@ struct ProgressBar: View {
                 Capsule()
                     .fill(Color.white)
                     .frame(width: width * CGFloat(progress), height: 8)
+                    .animation(.linear(duration: 0.4), value: progress)
             }
             .contentShape(Rectangle())
             .gesture(
