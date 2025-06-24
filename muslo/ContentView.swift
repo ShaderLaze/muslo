@@ -1,48 +1,71 @@
+// ContentView.swift
 import SwiftUI
 import UniformTypeIdentifiers
-import AVFoundation
 
 struct ContentView: View {
     @State private var tracks: [Track] = []
-    @State private var isImporterPresented = false
-    @StateObject private var player = AudioPlayer()
+    @StateObject private var audioPlayer = AudioPlayer()
+    @State private var showingImporter = false
 
     var body: some View {
-        NavigationStack {
-            List {
-                ForEach(tracks) { track in
-                    HStack {
-                        Text(track.name)
-                        Spacer()
-                        Button(action: {
-                            player.play(url: track.url)
-                        }) {
-                            Image(systemName: "play.circle")
+        NavigationView {
+            List(tracks) { track in
+                HStack {
+                    if let image = track.artwork {
+                        Image(uiImage: image)
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .cornerRadius(4)
+                    } else {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 50, height: 50)
+                            .cornerRadius(4)
+                    }
+                    VStack(alignment: .leading) {
+                        Text(track.title)
+                            .font(.headline)
+                        if let artist = track.artist {
+                            Text(artist)
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
                     }
                 }
+                .onTapGesture {
+                    audioPlayer.play(url: track.url)
+                }
             }
-            .navigationTitle("Tracks")
+            .navigationTitle("Моя музыка")
             .toolbar {
-                Button(action: { isImporterPresented = true }) {
-                    Image(systemName: "plus")
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showingImporter = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
                 }
             }
             .fileImporter(
-                isPresented: $isImporterPresented,
-                allowedContentTypes: [.audio]
+                isPresented: $showingImporter,
+                allowedContentTypes: [.audio],
+                allowsMultipleSelection: false
             ) { result in
                 switch result {
-                case .success(let url):
-                    tracks.append(Track(url: url))
+                case .success(let urls):
+                    if let url = urls.first {
+                        Task {
+                            let track = await Track(url: url)
+                            await MainActor.run {
+                                tracks.append(track)
+                            }
+                        }
+                    }
                 case .failure(let error):
-                    print(error.localizedDescription)
+                    print("Importer error:", error.localizedDescription)
                 }
             }
         }
+        .environmentObject(audioPlayer)
     }
-}
-
-#Preview {
-    ContentView()
 }
