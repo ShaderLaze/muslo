@@ -12,20 +12,21 @@ struct PlayerView: View {
         GeometryReader { geo in
             ZStack {
                 Color.black.ignoresSafeArea()
-                VStack(spacing: 0) {
+                VStack(spacing: 12) {
                     if let artwork = track.artwork {
                         Image(uiImage: artwork)
                             .resizable()
                             .scaledToFill()
                             .frame(width: geo.size.width, height: geo.size.width)
                             .clipped()
+                            .ignoresSafeArea(.container, edges: .top)
                     } else {
                         Rectangle()
                             .fill(Color.gray.opacity(0.3))
                             .frame(width: geo.size.width, height: geo.size.width)
+                            .ignoresSafeArea(.container, edges: .top)
                     }
-                    Spacer()
-                    VStack(alignment: .leading) {
+                    VStack(alignment: .leading, spacing: 4) {
                         Text(track.title)
                             .font(.title2.bold())
                             .foregroundColor(.white)
@@ -36,6 +37,7 @@ struct PlayerView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
+                    .padding(.top, 4)
                     ProgressBar(
                         currentTime: Binding(
                             get: { audioPlayer.currentTime },
