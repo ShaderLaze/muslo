@@ -52,7 +52,10 @@ struct ContentView: View {
             ) { result in
                 switch result {
                 case .success(let url):
-                    tracks.append(Track(url: url))
+                    Task {
+                        let track = await Track(url: url)
+                        await MainActor.run { tracks.append(track) }
+                    }
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
