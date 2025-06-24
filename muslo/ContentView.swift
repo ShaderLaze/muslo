@@ -11,9 +11,33 @@ struct ContentView: View {
         NavigationStack {
             List {
                 ForEach(tracks) { track in
-                    HStack {
-                        Text(track.name)
+                    HStack(alignment: .center, spacing: 8) {
+                        if let artwork = track.artwork {
+                            Image(uiImage: artwork)
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .aspectRatio(contentMode: .fill)
+                                .clipped()
+                                .cornerRadius(4)
+                        } else {
+                            Image(systemName: "music.note")
+                                .resizable()
+                                .frame(width: 50, height: 50)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        VStack(alignment: .leading) {
+                            Text(track.title)
+                                .font(.headline)
+                            if let artist = track.artist {
+                                Text(artist)
+                                    .font(.subheadline)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+
                         Spacer()
+
                         Button(action: {
                             player.play(url: track.url)
                         }) {
