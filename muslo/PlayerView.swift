@@ -40,13 +40,14 @@ struct PlayerView: View {
                 HStack {
                     Text(formatTime(audioPlayer.currentTime))
                         .foregroundColor(.white.opacity(0.7))
-                    Slider(value: Binding(
-                        get: { audioPlayer.currentTime },
-                        set: { newVal in
-                            audioPlayer.currentTime = newVal
-                            audioPlayer.seek(to: newVal)
-                        }
-                    ), in: 0...max(audioPlayer.duration, 0.1))
+                    ProgressBar(
+                        currentTime: Binding(
+                            get: { audioPlayer.currentTime },
+                            set: { audioPlayer.currentTime = $0 }
+                        ),
+                        duration: audioPlayer.duration,
+                        seek: { audioPlayer.seek(to: $0) }
+                    )
                     Text(formatTime(audioPlayer.duration))
                         .foregroundColor(.white.opacity(0.7))
                 }
