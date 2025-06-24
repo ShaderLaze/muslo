@@ -6,10 +6,13 @@ struct ContentView: View {
     @State private var tracks: [Track] = []
     @StateObject private var audioPlayer = AudioPlayer()
     @State private var showingImporter = false
+    @State private var showingPlayer = false
+    @State private var selectedIndex: Int = 0
 
     var body: some View {
         NavigationView {
-            List(tracks) { track in
+            List(tracks.indices, id: \.self) { index in
+                let track = tracks[index]
                 HStack {
                     if let image = track.artwork {
                         Image(uiImage: image)
@@ -33,7 +36,9 @@ struct ContentView: View {
                     }
                 }
                 .onTapGesture {
+                    selectedIndex = index
                     audioPlayer.play(url: track.url)
+                    showingPlayer = true
                 }
             }
             .navigationTitle("Моя музыка")
@@ -65,6 +70,10 @@ struct ContentView: View {
                     print("Importer error:", error.localizedDescription)
                 }
             }
+        }
+        .fullScreenCover(isPresented: $showingPlayer) {
+            PlayerView(tracks: $tracks, index: $selectedIndex)
+                .environmentObject(audioPlayer)
         }
         .environmentObject(audioPlayer)
     }
