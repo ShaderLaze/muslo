@@ -12,31 +12,33 @@ struct Track: Identifiable {
 
     var name: String { title }
 
-    init(url: URL) {
+    init(url: URL) async {
         self.url = url
 
-        let asset = AVAsset(url: url)
+        let asset = AVURLAsset(url: url)
 
         var title = url.deletingPathExtension().lastPathComponent
         var artist: String?
         var album: String?
         var artwork: UIImage?
 
-        for item in asset.commonMetadata {
-            guard let key = item.commonKey?.rawValue else { continue }
-            switch key {
-            case "title":
-                title = item.stringValue ?? title
-            case "artist":
-                artist = item.stringValue
-            case "albumName":
-                album = item.stringValue
-            case "artwork":
-                if let data = item.dataValue {
-                    artwork = UIImage(data: data)
+        if let metadata = try? await asset.load(.commonMetadata) {
+            for item in metadata {
+                guard let key = item.commonKey?.rawValue else { continue }
+                switch key {
+                case "title":
+                    title = (try? await item.load(.stringValue)) ?? title
+                case "artist":
+                    artist = try? await item.load(.stringValue)
+                case "albumName":
+                    album = try? await item.load(.stringValue)
+                case "artwork":
+                    if let data = try? await item.load(.dataValue) {
+                        artwork = UIImage(data: data)
+                    }
+                default:
+                    break
                 }
-            default:
-                break
             }
         }
 
